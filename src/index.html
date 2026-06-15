@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>区块链众筹系统</title>
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #d9e2ec;
+      --paper: #f7fafc;
+      --brand: #146c94;
+      --brand-dark: #0f4d68;
+      --ok: #1f8a5b;
+      --warn: #b26a00;
+      --bad: #b42318;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: "Helvetica Neue", Arial, sans-serif;
+    }
+
+    .app-shell {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 32px 18px 48px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .topbar h1 {
+      margin: 0;
+      font-size: 30px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .account-badge {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      padding: 8px 14px;
+      color: var(--muted);
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(280px, 360px) 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .panel,
+    .project-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    }
+
+    .panel {
+      padding: 20px;
+      position: sticky;
+      top: 20px;
+    }
+
+    .panel h2,
+    .projects-heading h2 {
+      margin: 0 0 16px;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .form-label {
+      font-weight: 600;
+      color: #344054;
+    }
+
+    .btn-primary {
+      background: var(--brand);
+      border-color: var(--brand);
+    }
+
+    .btn-primary:hover,
+    .btn-primary:focus {
+      background: var(--brand-dark);
+      border-color: var(--brand-dark);
+    }
+
+    .projects-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .project-tools {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .project-tools select {
+      min-width: 132px;
+    }
+
+    .projects-heading p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .project-list {
+      display: grid;
+      gap: 16px;
+    }
+
+    .project-card {
+      padding: 20px;
+    }
+
+    .project-card--focus {
+      outline: 3px solid rgba(20, 108, 148, 0.24);
+      outline-offset: 4px;
+    }
+
+    .project-card__header {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: flex-start;
+      margin-bottom: 18px;
+    }
+
+    .project-card h3 {
+      margin: 4px 0 8px;
+      font-size: 22px;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+
+    .project-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+    }
+
+    .project-id {
+      color: var(--brand);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .status-pill {
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .status-active {
+      background: #e7f5ef;
+      color: var(--ok);
+    }
+
+    .status-ready {
+      background: #e8f1ff;
+      color: #175cd3;
+    }
+
+    .status-released {
+      background: #eef0ff;
+      color: #5145cd;
+    }
+
+    .status-pending {
+      background: #fff4df;
+      color: var(--warn);
+    }
+
+    .status-success {
+      background: #e8f1ff;
+      color: #175cd3;
+    }
+
+    .status-failed {
+      background: #ffe9e7;
+      color: var(--bad);
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .metric-grid div {
+      padding: 12px;
+      border-right: 1px solid var(--line);
+      min-width: 0;
+    }
+
+    .metric-grid div:last-child {
+      border-right: 0;
+    }
+
+    .metric-grid strong {
+      display: block;
+      font-size: 18px;
+      overflow-wrap: anywhere;
+    }
+
+    .metric-grid span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .progress {
+      height: 24px;
+      margin-bottom: 16px;
+      background: #edf2f7;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      background: var(--brand);
+      min-width: 36px;
+      line-height: 24px;
+      font-size: 12px;
+    }
+
+    .project-meta {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 0 0 16px;
+    }
+
+    .project-meta div {
+      background: #f8fafc;
+      border-radius: 6px;
+      padding: 10px;
+      min-width: 0;
+    }
+
+    .project-meta dt {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .project-meta dd {
+      margin: 3px 0 0;
+      overflow-wrap: anywhere;
+    }
+
+    .project-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .donation-form {
+      display: flex;
+      gap: 8px;
+      min-width: min(100%, 320px);
+    }
+
+    .donation-form input {
+      max-width: 180px;
+    }
+
+    .project-updates,
+    .donor-list {
+      border-top: 1px solid var(--line);
+      padding-top: 14px;
+    }
+
+    .project-updates {
+      margin-bottom: 16px;
+    }
+
+    .project-updates h4,
+    .donor-list h4 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .project-updates ul,
+    .donor-list ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 6px;
+    }
+
+    .project-updates li,
+    .donor-list li {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .project-updates time {
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .update-form {
+      margin-top: 10px;
+    }
+
+    .update-control {
+      display: flex;
+      gap: 8px;
+    }
+
+    .donor-list em,
+    .badge-label {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 2px 8px;
+      margin-left: 6px;
+      font-size: 12px;
+      font-style: normal;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .donor-list em {
+      background: #fff4df;
+      color: var(--warn);
+    }
+
+    .badge-gold {
+      background: #fff1bd;
+      color: #8a5200;
+    }
+
+    .badge-silver {
+      background: #e8f1ff;
+      color: #175cd3;
+    }
+
+    .badge-bronze {
+      background: #e7f5ef;
+      color: var(--ok);
+    }
+
+    .empty-state {
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 28px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .empty-state.compact {
+      padding: 16px;
+      text-align: left;
+    }
+
+    .my-panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    .my-panel h2 {
+      margin: 0 0 12px;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .participation-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .participation-grid button {
+      border: 0;
+      background: #f8fafc;
+      border-radius: 6px;
+      padding: 10px;
+      text-align: left;
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    .participation-grid button:disabled {
+      cursor: default;
+      opacity: 0.6;
+    }
+
+    .participation-grid strong {
+      display: block;
+      font-size: 20px;
+    }
+
+    .participation-grid span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .participation-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 6px;
+    }
+
+    .participation-list li {
+      display: block;
+    }
+
+    .participation-list button {
+      display: flex;
+      width: 100%;
+      border: 0;
+      background: transparent;
+      padding: 0;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 14px;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    #statusMessage[hidden] {
+      display: none;
+    }
+
+    @media (max-width: 900px) {
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+
+      .panel {
+        position: static;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .topbar,
+      .project-card__header,
+      .projects-heading {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .metric-grid,
+      .project-meta {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .donation-form,
+      .update-form,
+      .update-control,
+      .donation-form input {
+        width: 100%;
+        max-width: none;
+      }
+
+      .update-control {
+        flex-direction: column;
+      }
+
+      .project-tools {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .project-tools select,
+      .project-tools button {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 460px) {
+      .metric-grid,
+      .project-meta {
+        grid-template-columns: 1fr;
+      }
+
+      .metric-grid div {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .metric-grid div:last-child {
+        border-bottom: 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div>
+        <h1>区块链众筹系统</h1>
+        <p class="text-muted mb-0">基于 Hardhat、Ganache/本地区块链和 Web3 钱包的项目众筹演示</p>
+      </div>
+      <span id="accountBadge" class="account-badge">连接中...</span>
+    </header>
+
+    <div id="statusMessage" class="alert alert-info" hidden></div>
+
+    <section class="workspace">
+      <aside class="panel">
+        <h2>创建项目</h2>
+        <form id="projectForm">
+          <div class="mb-3">
+            <label class="form-label" for="projectName">项目名称</label>
+            <input id="projectName" class="form-control" type="text" placeholder="例如：校园图书角" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="projectDescription">项目描述</label>
+            <textarea id="projectDescription" class="form-control" rows="4" placeholder="说明筹款用途" required></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="projectCategory">项目分类</label>
+            <select id="projectCategory" class="form-control" required>
+              <option value="公益">公益</option>
+              <option value="校园">校园</option>
+              <option value="医疗">医疗</option>
+              <option value="创意">创意</option>
+              <option value="其他">其他</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="projectGoal">目标金额 ETH</label>
+            <input id="projectGoal" class="form-control" type="number" min="0.001" step="0.001" placeholder="1" required>
+          </div>
+          <div class="mb-4">
+            <label class="form-label" for="projectDeadline">截止日期</label>
+            <input id="projectDeadline" class="form-control" type="datetime-local" required>
+          </div>
+          <button class="btn btn-primary w-100" type="submit">提交项目</button>
+        </form>
+      </aside>
+
+      <section>
+        <div class="my-panel">
+          <h2>我的参与记录</h2>
+          <div id="myParticipation">
+            <div class="empty-state compact">正在读取你的参与记录...</div>
+          </div>
+        </div>
+
+        <div class="projects-heading">
+          <div>
+            <h2>众筹项目</h2>
+            <p>当前链上共有 <strong id="projectCount">0</strong> 个项目 · <span id="projectViewLabel">全部项目 · 0 个</span></p>
+          </div>
+          <div class="project-tools">
+            <button id="clearParticipationFilter" class="btn btn-outline-secondary" type="button" hidden>查看全部</button>
+            <select id="categoryFilter" class="form-control">
+              <option value="all">全部分类</option>
+              <option value="公益">公益</option>
+              <option value="校园">校园</option>
+              <option value="医疗">医疗</option>
+              <option value="创意">创意</option>
+              <option value="其他">其他</option>
+            </select>
+            <select id="statusFilter" class="form-control">
+              <option value="all">全部状态</option>
+              <option value="active">未达标进行中</option>
+              <option value="ready">已达标可释放</option>
+              <option value="released">已释放里程碑</option>
+              <option value="pending">待结束</option>
+              <option value="success">成功待提款</option>
+              <option value="claimed">成功已提款</option>
+              <option value="failed">失败可退款</option>
+            </select>
+            <button id="refreshProjects" class="btn btn-outline-secondary" type="button">刷新</button>
+          </div>
+        </div>
+        <div id="projectsList" class="project-list">
+          <div class="empty-state">正在加载项目...</div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script type="module">
+    import { DApp } from './js/dapp.js';
+
+    window.addEventListener('load', () => {
+      DApp.init();
+    });
+  </script>
+  <script src="js/bootstrap.min.js"></script>
+</body>
+
+</html>

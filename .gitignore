@@ -1,0 +1,8 @@
+node_modules/
+backups/
+cache/
+artifacts/
+coverage/
+.env
+.env.*
+ignition/deployments/

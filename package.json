@@ -1,11 +1,11 @@
 {
-  "name": "pet-shop",
+  "name": "crowdfunding-dapp",
   "version": "1.0.0",
   "scripts": {
     "dev": "lite-server",
     "test": "hardhat test",
-    "node": "hardhat node",
-    "deploy:local": "hardhat ignition deploy ./ignition/modules/Adoption.js --network localhost --reset"
+    "node": "hardhat node --hostname 0.0.0.0",
+    "deploy:local": "hardhat ignition deploy ./ignition/modules/Crowdfunding.js --network localhost --reset"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",

@@ -10,6 +10,12 @@ const DApp = {
     participationFilter: "all",
     selectedProjectId: null,
 
+    getLocalRpcUrl: function () {
+        const host = window.location.hostname || "127.0.0.1";
+        const rpcHost = host === "localhost" ? "127.0.0.1" : host;
+        return `http://${rpcHost}:8545`;
+    },
+
     init: async function () {
         DApp.setDefaultDeadline();
         await DApp.initWeb3();
@@ -18,7 +24,8 @@ const DApp = {
     },
 
     initWeb3: async function () {
-        DApp.readProvider = new ethers.JsonRpcProvider("http://127.0.0.1:8545");
+        const localRpcUrl = DApp.getLocalRpcUrl();
+        DApp.readProvider = new ethers.JsonRpcProvider(localRpcUrl);
 
         if (window.ethereum) {
             DApp.web3Provider = new ethers.BrowserProvider(window.ethereum);
@@ -31,7 +38,7 @@ const DApp = {
                 await DApp.refreshProjects();
             });
         } else {
-            DApp.web3Provider = new ethers.JsonRpcProvider("http://localhost:8545");
+            DApp.web3Provider = new ethers.JsonRpcProvider(localRpcUrl);
             const signer = await DApp.web3Provider.getSigner();
             DApp.account = await signer.getAddress();
         }
@@ -42,11 +49,11 @@ const DApp = {
 
     initContract: async function () {
         const chainId = await DApp.readProvider.getNetwork().then(network => network.chainId);
-        const artifactResponse = await fetch("../artifacts/contracts/Adoption.sol/Adoption.json");
+        const artifactResponse = await fetch("../artifacts/contracts/Crowdfunding.sol/Crowdfunding.json");
         const addressResponse = await fetch(`../ignition/deployments/chain-${chainId}/deployed_addresses.json`);
         const artifact = await artifactResponse.json();
         const addresses = await addressResponse.json();
-        const address = addresses["AdoptionModule#Adoption"];
+        const address = addresses["CrowdfundingModule#Crowdfunding"];
         const signer = await DApp.web3Provider.getSigner();
 
         DApp.contract = new ethers.Contract(address, artifact.abi, signer);
@@ -237,7 +244,7 @@ const DApp = {
                 );
             } else if (action === "withdraw") {
                 tx = await DApp.withTimeout(
-                    DApp.contract.withdrawFunds(projectId),
+                    DApp.contract.withdraw(projectId),
                     "MetaMask 未响应，请点击浏览器扩展图标查看是否有待确认交易。"
                 );
             } else if (action === "refund") {

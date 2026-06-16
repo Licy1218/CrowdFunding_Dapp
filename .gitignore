@@ -6,3 +6,5 @@ coverage/
 .env
 .env.*
 ignition/deployments/
+figs/
+实验报告.md

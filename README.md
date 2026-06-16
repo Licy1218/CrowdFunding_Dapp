@@ -25,14 +25,14 @@
 
 ```text
 contracts/                 Solidity 智能合约
-  Adoption.sol             众筹系统主合约
+  Crowdfunding.sol             众筹系统主合约
 ignition/modules/          Hardhat Ignition 部署模块
-  Adoption.js
+  Crowdfunding.js
 src/                       前端页面和脚本
   index.html
   js/dapp.js
 test/                      合约测试
-  Adoption.js
+  Crowdfunding.js
 tasks/                     Hardhat 自定义任务
 ```
 
@@ -92,6 +92,8 @@ npm test
 npm run node
 ```
 
+该命令会把 Hardhat RPC 监听在 `0.0.0.0:8545`。如果是在服务器或虚拟机上运行项目，再从另一台电脑浏览器访问前端，需要确保服务器防火墙放行 `8545` 端口。
+
 另开一个终端，部署合约：
 
 ```shell
@@ -110,6 +112,8 @@ npm run dev
 http://localhost:3000
 ```
 
+如果使用 lite-server 输出的 External 地址访问，例如 `http://58.198.177.109:3000`，MetaMask 的 RPC URL 也要使用同一个主机地址。
+
 ## 六、MetaMask 配置
 
 请在 MetaMask 中添加本地 Hardhat 网络：
@@ -117,6 +121,15 @@ http://localhost:3000
 ```text
 Network name: Hardhat Local
 RPC URL: http://127.0.0.1:8545
+Chain ID: 31337
+Currency symbol: ETH
+```
+
+如果浏览器和 Hardhat 节点不在同一台机器上，请不要使用 `127.0.0.1`，改成服务器或虚拟机 IP：
+
+```text
+Network name: Hardhat Local
+RPC URL: http://58.198.177.109:8545
 Chain ID: 31337
 Currency symbol: ETH
 ```
@@ -155,4 +168,3 @@ node -e "const { ethers } = require('ethers'); const provider = new ethers.JsonR
 - Hardhat 本地链重启后链上数据会清空，需要重新部署合约并重新创建项目。
 - `npm run deploy:local` 使用 `--reset`，会重置 Hardhat Ignition 本地部署记录。
 - `.gitignore` 已排除 `node_modules/`、`artifacts/`、`cache/`、`ignition/deployments/` 和 `backups/` 等本地文件。
-

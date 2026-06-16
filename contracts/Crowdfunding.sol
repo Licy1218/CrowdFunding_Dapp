@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-contract Adoption {
+contract Crowdfunding {
     uint256 private constant EARLY_DONOR_LIMIT = 10;
     uint256 private constant TOP_DONOR_POINTS = 100;
     uint256 private constant EARLY_DONOR_POINTS = 50;
@@ -158,7 +158,7 @@ contract Adoption {
         emit ProjectEnded(projectId, project.successful, project.pledgedAmount);
     }
 
-    function withdrawFunds(uint256 projectId) external {
+    function withdraw(uint256 projectId) external {
         Project storage project = projects[projectId];
 
         require(projectId < projectCount, "Project does not exist");
@@ -169,6 +169,7 @@ contract Adoption {
 
         uint256 amount = project.pledgedAmount - project.releasedAmount;
         project.fundsClaimed = true;
+        project.releasedAmount = project.pledgedAmount;
 
         (bool sent, ) = project.creator.call{value: amount}("");
         require(sent, "Funds transfer failed");
